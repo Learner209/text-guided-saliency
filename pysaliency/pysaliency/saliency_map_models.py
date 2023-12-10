@@ -18,6 +18,7 @@ from .utils import TemporaryDirectory, run_matlab_cmd, Cache, average_values, de
 from .datasets import Stimulus, Fixations
 from .metrics import CC, NSS, SIM
 from .sampling_models import SamplingModelMixin
+import sys
 
 
 def handle_stimulus(stimulus):
@@ -269,13 +270,12 @@ class SaliencyMapModel(ScanpathSaliencyMapModel):
         stimulus_id = stimulus.stimulus_id
         if not stimulus_id in self._cache:
             temp = stimulus.stimulus_data
-            print(temp.shape, temp.dtype, np.min(temp), np.max(temp))
             if not (len(temp.shape)) == 3:
                 raise ValueError("Stimulus has wrong shape: {}".format(temp.shape))
             if not (temp.shape[-1] == 3):
                 if not (temp.shape[-1] == 4):
                     raise ValueError("Stimulus has wrong shape: {}".format(temp.shape))
-                temp = temp[..., :3]
+                # temp = temp[..., :3]
             self._cache[stimulus_id] = self._saliency_map(temp)
         return self._cache[stimulus_id]
 
@@ -414,6 +414,7 @@ class SaliencyMapModel(ScanpathSaliencyMapModel):
 
         for n in tqdm(range(len(stimuli)), disable=not verbose):
             out = self.saliency_map(stimuli.stimulus_objects[n])
+            print(f"the output saliency map is {out.shape}, {np.min(out)},{np.max(out)}")
             inds = fixations.n == n
             positives = np.asarray(out[fixations.y_int[inds], fixations.x_int[inds]])
             if nonfixations == 'uniform':
@@ -433,6 +434,8 @@ class SaliencyMapModel(ScanpathSaliencyMapModel):
 
             positives = positives.astype(float)
             negatives = negatives.astype(float)
+            print(f"positives are: {positives.shape}, negatives are: {negatives.shape}")
+            print(f"Judd is {judd}")
             this_roc, _, _ = general_roc(positives, negatives, judd=judd)
             rocs_per_image.append(this_roc)
         return rocs_per_image
@@ -792,11 +795,12 @@ class MatlabSaliencyMapModel(SaliencyMapModel):
 
             command = self.matlab_command(stimulus).format(stimulus=stimulus_file,
                                                            saliency_map=saliency_map_file)
-
             run_matlab_cmd(command, cwd=self.script_directory)
 
             if self.saliency_map_ext == '.mat':
                 saliency_map = loadmat(saliency_map_file)['saliency_map']
+                print(loadmat(saliency_map_file))
+                print(loadmat(saliency_map_file).keys())
             else:
                 raise ValueError(self.saliency_map_ext)
 
@@ -842,12 +846,16 @@ class FixationMap(SaliencyMapModel):
 
         self.xs = {}
         self.ys = {}
+
+        self.aux = []
         for n in range(len(stimuli)):
             f = fixations[fixations.n == n]
-            
 
+            self.aux.append(stimuli.stimulus_ids[n])
             self.xs[stimuli.stimulus_ids[n]] = f.x.copy()
             self.ys[stimuli.stimulus_ids[n]] = f.y.copy()
+
+        # print(self.aux)
 
         self.kernel_size = kernel_size
         self.convolution_mode = convolution_mode
@@ -856,6 +864,7 @@ class FixationMap(SaliencyMapModel):
     def _saliency_map(self, stimulus):
         stimulus = Stimulus(stimulus)
         stimulus_id = stimulus.stimulus_id
+        # print(stimulus.stimulus_id)
         if stimulus.stimulus_id not in self.xs:
             raise ValueError('No Fixations known for this stimulus!')
         saliency_map = np.zeros(stimulus.size)

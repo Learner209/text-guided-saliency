@@ -30,7 +30,7 @@ from pysaliency.utils import (
     atomic_directory_setup,
     build_padded_2d_array)
 import shutil
-
+from loguru import logger
 from pysaliency.external_datasets.utils import create_stimuli, _load
 from loguru import logger
 import pandas as pd
@@ -54,8 +54,8 @@ class TextDescriptor:
         self.partial_description_dict = {}
         for _, row in partial_text_df.iterrows():
             self.partial_description_dict[(row['image'], row['description'])] = row['text']
-        print(self.overall_description_dict)
-        print(self.partial_description_dict)
+        # print(self.overall_description_dict)
+        # print(self.partial_description_dict)
 
     def get_description(self, image_path: str) -> str:
         image_path = os.path.splitext(image_path)[0]
@@ -114,15 +114,10 @@ def _get_sjtu_vis(original_dataset_path, dataset_name, text_descriptor, location
         images = [os.path.split(img)[1] for img in images]
         stimuli_filenames = natsorted(images)
 
-        if only_1024_by_768:
-            def check_size(f):
-                img = Image.open(os.path.join(stimuli_src_location, f))
-                return img.size == (1024, 768)
-
-            stimuli_filenames = [s for s in stimuli_filenames if check_size(s)]
-
         if os.path.exists(stimuli_target_location):
             shutil.rmtree(stimuli_target_location)
+        # print("The base path is {}".format(stimuli_target_location))
+        # print(stimuli_filenames[:10])
         stimuli = create_stimuli(stimuli_src_location, stimuli_filenames, stimuli_target_location)
 
         subjects = [str(i) for i in range(15)]
@@ -149,7 +144,6 @@ def _get_sjtu_vis(original_dataset_path, dataset_name, text_descriptor, location
             stimulus_size = stimuli.sizes[n]
             height, width = stimulus_size
 
-            # Load fixation image (black and white)
             fixation_image_path = os.path.splitext(stimulus)[0]
             fixation_image_path = os.path.join(os.path.join(temp_dir, "fixation"), stimulus)  # replace with actual directory
             fixation_image = Image.open(fixation_image_path).convert('L')  # Convert to grayscale
@@ -160,10 +154,7 @@ def _get_sjtu_vis(original_dataset_path, dataset_name, text_descriptor, location
             assert fixation_image_size == original_img_size, "The images have different shapes."
 
             # Get the text
-
             image_text = text_descriptor.get_description(stimulus)
-            # print(image_text)
-
             fixation_pixels = np.array(fixation_image)
 
             # Extract coordinates of fixation points (white pixels)
@@ -225,21 +216,12 @@ def _get_sjtu_vis(original_dataset_path, dataset_name, text_descriptor, location
                 duration_hist.append(_durations[:i])
 
         attributes = {
-            # duration_hist contains for each fixation the durations of the previous fixations in the scanpath
             'duration_hist': build_padded_2d_array(duration_hist),
         }
         scanpath_attributes = {
-            # train_durations contains the fixation durations for each scanpath
             'train_durations': build_padded_2d_array(train_durations),
         }
-
-        xs = np.hstack(xs)
-        ys = np.hstack(ys)
-        ts = np.hstack(ts)
-        subjects = np.hstack(train_subjects)
-        ns = np.hstack(ns)
-
-        fixations = Fixations.FixationsWithoutHistory(xs, ys, ts, ns, train_subjects)
+        fixations = FixationTrains.from_fixation_trains(xs, ys, ts, ns, train_subjects, attributes=attributes, scanpath_attributes=scanpath_attributes)
 
         if location:
             stimuli.to_hdf5(os.path.join(location, 'stimuli.hdf5'))
@@ -252,10 +234,34 @@ def get_sjtu_vis(original_dataset_path, location, text_descriptor):
 
 
 if __name__ == '__main__':
+    import pysaliency
+    import matplotlib.pyplot as plt
+    import random
 
-    # Example usage
-    text_descriptor = TextDescriptor('../../datasets/test/original_sjtuvis_dataset/text.xlsx')
-    print(text_descriptor.get_description('000000020777_2.png'))
+    data_location = "datasets/test"
+    text_descriptor = TextDescriptor('datasets/test/original_sjtuvis_dataset/text.xlsx')
+    mit_stimuli, mit_fixations = pysaliency.external_datasets.get_sjtu_vis("datasets/test/original_sjtuvis_dataset", location=data_location, text_descriptor=text_descriptor)
+    num_rows = 4
+    num_cols = 5
 
-    get_sjtu_vis(location="../../datasets/test/",
-                 text_descriptor=text_descriptor)
+    # Create a figure and subplots
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(12, 8))
+
+    # Iterate over the images and fixations
+    for i, ax in enumerate(axes.flat):
+        # Get the image and fixations for the current index
+        index = random.randint(0, len(mit_stimuli.stimuli) - 1)
+        image = mit_stimuli.stimuli[index]
+        fixations = mit_fixations[mit_fixations.n == index]
+        # Plot the image
+        ax.imshow(image)
+        ax.axis('off')
+
+        # Plot the fixations as red dots
+        ax.scatter(fixations.x, fixations.y, color='r')
+
+    # Adjust the spacing between subplots
+    plt.tight_layout()
+
+    # Show the plot
+    plt.show()

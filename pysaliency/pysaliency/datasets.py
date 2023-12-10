@@ -17,6 +17,9 @@ from tqdm import tqdm
 
 from .utils import LazyList, build_padded_2d_array
 from typing import Union, List, Tuple, Optional, Dict, Any
+import sys
+
+# region
 
 
 def hdf5_wrapper(mode=None):
@@ -102,6 +105,7 @@ def _read_hdf5_from_file(source):
     import h5py
     with h5py.File(source, 'r') as hdf5_file:
         return read_hdf5(hdf5_file)
+# endregion
 
 
 class Fixations(object):
@@ -574,65 +578,6 @@ class FixationTrains(Fixations):
                                                                train_subjects_eval)
         return fixations_training, fixations_evaluation
 
-#    def generate_nonfixations(self, seed=42):
-#        """Generate nonfixational distribution from this
-#        fixation object by shuffling the images of the
-#        fixation trains. The individual fixation trains
-#        will be left intact"""
-#        train_xs = self.train_xs.copy()
-#        train_ys = self.train_ys.copy()
-#        train_ts = self.train_ts.copy()
-#        train_ns = self.train_ns.copy()
-#        train_subjects = self.train_subjects.copy()
-#        max_n = train_ns.max()
-#        rs = np.random.RandomState(seed)
-#        for i in range(len(train_ns)):
-#            old_n = train_ns[i]
-#            new_ns = range(0, old_n)+range(old_n+1, max_n+1)
-#            new_n = rs.choice(new_ns)
-#            train_ns[i] = new_n
-#        return type(self)(train_xs, train_ys, train_ts, train_ns, train_subjects)
-#
-#    def generate_more_nonfixations(self, count=1, seed=42):
-#        """Generate nonfixational distribution from this
-#        fixation object by assining each fixation
-#        train to $count other images.
-#
-#        with count=0, each train will be assigned to all
-#        other images"""
-#        train_xs = []
-#        train_ys = []
-#        train_ts = []
-#        train_ns = []
-#        train_subjects = []
-#        max_n = self.train_ns.max()
-#        if count == 0:
-#            count = max_n-1
-#        rs = np.random.RandomState(seed)
-#        for i in range(len(self.train_ns)):
-#            old_n = self.train_ns[i]
-#            new_ns = range(0, old_n)+range(old_n+1, max_n+1)
-#            new_ns = rs.choice(new_ns, size=count, replace=False)
-#            for new_n in new_ns:
-#                train_xs.append(self.train_xs[i])
-#                train_ys.append(self.train_ys[i])
-#                train_ts.append(self.train_ts[i])
-#                train_ns.append(new_n)
-#                train_subjects.append(self.train_subjects[i])
-#        train_xs = np.vstack(train_xs)
-#        train_ys = np.vstack(train_ys)
-#        train_ts = np.vstack(train_ts)
-#        train_ns = np.hstack(train_ns)
-#        train_subjects = np.hstack(train_subjects)
-#        # reorder
-#        inds = np.argsort(train_ns)
-#        train_xs = train_xs[inds]
-#        train_ys = train_ys[inds]
-#        train_ts = train_ts[inds]
-#        train_ns = train_ns[inds]
-#        train_subjects = train_subjects[inds]
-#        return type(self)(train_xs, train_ys, train_ts, train_ns, train_subjects)
-
     def shuffle_fixations(self, stimuli=None):
         new_indices = []
         new_ns = []
@@ -824,8 +769,8 @@ def get_image_hash(img):
 
     Can be used to cache results for images, e.g. saliency maps.
     """
-    if isinstance(img, Stimulus):
-        return img.stimulus_id
+    # if isinstance(img, Stimulus):
+    #     return img.stimulus_id
     return sha1(np.ascontiguousarray(img)).hexdigest()
 
 
@@ -855,8 +800,8 @@ class Stimulus(object):
 
     @property
     def stimulus_id(self):
-        if self._stimulus_id is None:
-            self._stimulus_id = get_image_hash(self.stimulus_data)
+        # if self._stimulus_id is None:
+        self._stimulus_id = get_image_hash(self.stimulus_data)
         return self._stimulus_id
 
     @property
@@ -917,7 +862,7 @@ class Stimuli(Sequence):
     ----------
     stimuli :
         The stimuli as list of numpy arrays
-    shapes :
+    shapes :Stimuli
         The shapes of the stimuli. For a grayscale stimulus this will
         be a 2-tuple, for a color stimulus a 3-tuple
     sizes :
@@ -1116,7 +1061,15 @@ class FileStimuli(Stimuli):
             self.attributes = {}
 
     def load_stimulus(self, n):
-        return imread(self.filenames[n])
+        temp = imread(self.filenames[n])
+        # print(temp.shape, temp.dtype, np.min(temp), np.max(temp))
+        if not (len(temp.shape)) == 3:
+            raise ValueError("Stimulus has wrong shape: {}".format(temp.shape))
+        if not (temp.shape[-1] == 3):
+            if not (temp.shape[-1] == 4):
+                raise ValueError("Stimulus has wrong shape: {}".format(temp.shape))
+            temp = temp[..., :3]
+        return temp
 
     def __getitem__(self, index):
         if isinstance(index, slice):
@@ -1200,7 +1153,7 @@ class FileStimuli(Stimuli):
         return stimuli
 
 
-def create_subset(stimuli:FileStimuli, fixations:FixationTrains, stimuli_indices:Union[List[int], np.ndarray]):
+def create_subset(stimuli: FileStimuli, fixations: FixationTrains, stimuli_indices: Union[List[int], np.ndarray]):
     """Create subset of stimuli and fixations using only stimuli
     with given indices.
     """
@@ -1226,6 +1179,8 @@ def create_subset(stimuli:FileStimuli, fixations:FixationTrains, stimuli_indices
         new_fixations.n = np.array(new_fixation_ns)
 
     return new_stimuli, new_fixations
+
+# region
 
 
 def concatenate_stimuli(stimuli):
@@ -1255,10 +1210,6 @@ def concatenate_attributes(attributes):
             else:
                 padded_attributes.append(a)
         return np.vstack(padded_attributes)
-
-# np.testing.assert_allclose(concatenate_attributes([[0], [1, 2, 3]]), [0,1,2,3])
-# np.testing.assert_allclose(concatenate_attributes([[[0]], [[1],[2], [3]]]), [[0],[1],[2],[3]])
-# np.testing.assert_allclose(concatenate_attributes([[[0.,1.]], [[1.],[2.], [3.]]]), [[0, 1],[1,np.nan],[2,np.nan],[3,np.nan]])
 
 
 def concatenate_fixations(fixations):
@@ -1309,6 +1260,9 @@ def remove_out_of_stimulus_fixations(stimuli, fixations):
             (fixations.y < heights[fixations.n])
             )
     return fixations[inds]
+# endregion
+
+# region
 
 
 def clip_out_of_stimulus_fixations(fixations, stimuli=None, width=None, height=None):
@@ -1387,3 +1341,4 @@ def create_nonfixations(stimuli, fixations, index, adjust_n=True, adjust_history
         non_fixations.n = np.ones(len(non_fixations.n), dtype=int) * index
 
     return non_fixations
+# endregion

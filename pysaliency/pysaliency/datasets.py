@@ -818,7 +818,7 @@ class Stimulus(object):
 
     @property
     def filename(self):
-        return self.stimulus_data.filename
+        raise NotImplementedError
 
 
 class StimuliStimulus(Stimulus):

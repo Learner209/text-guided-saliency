@@ -270,17 +270,12 @@ class SaliencyMapModel(ScanpathSaliencyMapModel):
         stimulus_id = stimulus.stimulus_id
         if not stimulus_id in self._cache:
             temp = stimulus.stimulus_data
-            if not (len(temp.shape)) == 3:
-                raise ValueError("Stimulus has wrong shape: {}".format(temp.shape))
-            if not (temp.shape[-1] == 3):
-                if not (temp.shape[-1] == 4):
-                    raise ValueError("Stimulus has wrong shape: {}".format(temp.shape))
-                # temp = temp[..., :3]
+
             self._cache[stimulus_id] = self._saliency_map(temp)
         return self._cache[stimulus_id]
 
     @abstractmethod
-    def _saliency_map(self, stimulus):
+    def _saliency_map(self, stimulus, ):
         """
         Overwrite this to implement you own SaliencyMapModel.
 
@@ -414,7 +409,7 @@ class SaliencyMapModel(ScanpathSaliencyMapModel):
 
         for n in tqdm(range(len(stimuli)), disable=not verbose):
             out = self.saliency_map(stimuli.stimulus_objects[n])
-            print(f"the output saliency map is {out.shape}, {np.min(out)},{np.max(out)}")
+            # print(f"the output saliency map is {out.shape}, {np.min(out)},{np.max(out)}")
             inds = fixations.n == n
             positives = np.asarray(out[fixations.y_int[inds], fixations.x_int[inds]])
             if nonfixations == 'uniform':
@@ -434,8 +429,8 @@ class SaliencyMapModel(ScanpathSaliencyMapModel):
 
             positives = positives.astype(float)
             negatives = negatives.astype(float)
-            print(f"positives are: {positives.shape}, negatives are: {negatives.shape}")
-            print(f"Judd is {judd}")
+            # print(f"positives are: {positives.shape}, negatives are: {negatives.shape}")
+            # print(f"Judd is {judd}")
             this_roc, _, _ = general_roc(positives, negatives, judd=judd)
             rocs_per_image.append(this_roc)
         return rocs_per_image

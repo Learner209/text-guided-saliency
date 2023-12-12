@@ -54,24 +54,22 @@ class TextDescriptor:
         self.partial_description_dict = {}
         for _, row in partial_text_df.iterrows():
             self.partial_description_dict[(row['image'], row['description'])] = row['text']
-        # print(self.overall_description_dict)
-        # print(self.partial_description_dict)
 
     def get_description(self, image_path: str) -> str:
         image_path = os.path.splitext(image_path)[0]
         image_parts = image_path.split('_')
-        logger.info(f"image_path:{image_path} | image_parts:{image_parts}")
+        # logger.info(f"image_path:{image_path} | image_parts:{image_parts}")
         image_number = int(image_parts[0])
         suffix = image_parts[-1]
         res: str = ""
         if len(image_parts) == 1 or suffix == '0':
-            logger.info(f"text:{self.overall_description_dict.get(image_number)}")
+            # logger.info(f"text:{self.overall_description_dict.get(image_number)}")
             suffix = '1'
             res = self.overall_description_dict.get(image_number)
         if res is not None:
             return res
 
-        logger.info("text:{}".format(self.partial_description_dict.get((image_number, int(suffix)))))
+        # logger.info("text:{}".format(self.partial_description_dict.get((image_number, int(suffix)))))
         return self.partial_description_dict.get((image_number, int(suffix)))
 
     def update_description(self, image_number, description_number, new_text):

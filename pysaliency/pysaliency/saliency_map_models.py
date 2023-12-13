@@ -794,8 +794,8 @@ class MatlabSaliencyMapModel(SaliencyMapModel):
 
             if self.saliency_map_ext == '.mat':
                 saliency_map = loadmat(saliency_map_file)['saliency_map']
-                print(loadmat(saliency_map_file))
-                print(loadmat(saliency_map_file).keys())
+                # print(loadmat(saliency_map_file))
+                # print(loadmat(saliency_map_file).keys())
             else:
                 raise ValueError(self.saliency_map_ext)
 

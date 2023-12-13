@@ -50,10 +50,11 @@ class TextDescriptor:
         partial_text_df = pd.read_excel(self.file_path, sheet_name="partial")
 
         self.overall_description_dict: Dict(int, str) = dict(zip(overall_text_df['image'], overall_text_df['text']))
-
         self.partial_description_dict = {}
         for _, row in partial_text_df.iterrows():
             self.partial_description_dict[(row['image'], row['description'])] = row['text']
+        # print(self.overall_description_dict)
+        # print(self.partial_description_dict)
 
     def get_description(self, image_path: str) -> str:
         image_path = os.path.splitext(image_path)[0]
@@ -61,7 +62,7 @@ class TextDescriptor:
         # logger.info(f"image_path:{image_path} | image_parts:{image_parts}")
         image_number = int(image_parts[0])
         suffix = image_parts[-1]
-        res: str = ""
+        res = None
         if len(image_parts) == 1 or suffix == '0':
             # logger.info(f"text:{self.overall_description_dict.get(image_number)}")
             suffix = '1'

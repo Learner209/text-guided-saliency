@@ -116,3 +116,5 @@ def get_DUT_OMRON(location=None):
             stimuli.to_hdf5(os.path.join(location, 'stimuli.hdf5'))
             fixations.to_hdf5(os.path.join(location, 'fixations.hdf5'))
     return stimuli, fixations
+
+

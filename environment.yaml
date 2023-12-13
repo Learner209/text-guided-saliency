@@ -1,4 +1,4 @@
-name: lavis
+name: blipsaliency
 channels:
     - defaults
 dependencies:
@@ -312,4 +312,4 @@ dependencies:
           - werkzeug==3.0.1
           - widgetsnbextension==4.0.9
           - wrapt==1.16.0
-prefix: /home/liilu/.conda/envs/lavis
+prefix: /home/liilu/.conda/envs/blipsaliency

@@ -134,7 +134,7 @@ Also, if you want to see how I process the SJTU-VIS dataset inot to hdf5 format 
 
 ## ❖ Datasets
 
-We run on nine datasets, more specifically, MIT1003(MIT300)[6], SJTU-VIS10, CAT2000[5], FIGRIM[29], SALICON[4], Toronto[30], DUT-OMRON[31], OSIE[32], PASCAL-S, NUSEF-Public.
+We run on nine datasets, more specifically, MIT1003(MIT300), SJTU-VIS, CAT2000, FIGRIM, SALICON, Toronto, DUT-OMRON, OSIE, PASCAL-S, NUSEF-Public.
 
 Here are some samples taken randomly from the dataset:
 

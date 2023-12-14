@@ -101,7 +101,7 @@ For the detailed description and explanation, please read our full paper if you 
 
 ## ❖ Repository Structure
 
-The implementation of **BLIP BeaconSaliency** is in dir [`lavis`](https://github.com/Learner209/text-guided-saliency).Please install it via `pip install -e .` or `python setup.py install`. Due to the time and resource limit, we haven't performed extensive enough parameter finetuning experiments, if you like this repo, plek and PR to help us improve it ! 💚 💛 🤎.
+The implementation of **BLIP BeaconSaliency** is in dir [`blipsaliency`](https://github.com/Learner209/text-guided-saliency).Please install it via `pip install -e .` or `python setup.py install`. Due to the time and resource limit, we haven't performed extensive enough parameter finetuning experiments, if you like this repo, plek and PR to help us improve it ! 💚 💛 🤎.
 
 ## ❖ Development Environment
 
@@ -165,9 +165,9 @@ Now the directory tree should be the following:
 - deepgaze
     - deepgaze_pytorch
 - docs
-- lavis
+- blipsaliency
     - examples
-    - lavis
+    - blipsaliency
     - projects
 - pysaliency
     - notebooks

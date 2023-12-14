@@ -9,11 +9,11 @@ sns.set_style('white')
 
 import torch
 from PIL import Image
-from lavis.models import load_model_and_preprocess
-from lavis.processors import load_processor
+from blipsaliency.models import load_model_and_preprocess
+from blipsaliency.processors import load_processor
 from matplotlib import pyplot as plt
-from lavis.common.gradcam import getAttMap
-from lavis.models.blip_models.blip_image_text_matching import compute_gradcam
+from blipsaliency.common.gradcam import getAttMap
+from blipsaliency.models.blip_models.blip_image_text_matching import compute_gradcam
 import numpy as np
 from pysaliency.datasets import Stimulus, Fixations, FileStimuli, create_subset, FixationTrains, StimuliStimulus
 from torch import optim
@@ -28,8 +28,8 @@ import argparse
 from argparse import Namespace
 import random
 from typing import Optional, Union, List, Tuple, Dict, Any
-from lavis.models.blip_models.blip import BlipBase
-from lavis.models.blip_models.blip_image_text_matching import BlipITM
+from blipsaliency.models.blip_models.blip import BlipBase
+from blipsaliency.models.blip_models.blip_image_text_matching import BlipITM
 
 
 def handle_stimulus(stimulus: Stimulus):

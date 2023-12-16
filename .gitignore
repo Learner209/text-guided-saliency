@@ -148,3 +148,4 @@ datasets/
 *.zip
 *.tar.gz
 pretrained_weights/deepgaze/
+models/

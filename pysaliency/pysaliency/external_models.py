@@ -13,7 +13,7 @@ from scipy.ndimage import zoom
 from pysaliency.utils import TemporaryDirectory, download_and_check, run_matlab_cmd
 from pysaliency.quilt import QuiltSeries
 from pysaliency.saliency_map_models import MatlabSaliencyMapModel, SaliencyMapModel
-
+import sys
 
 def write_file(filename, contents):
     """Write contents to file and close file savely"""
@@ -410,7 +410,7 @@ class Judd(ExternalModelMixin, MatlabSaliencyMapModel):
     .. note::
         The original code is patched to work from other directories.
 
-        The model makes use of the [SaliencyToolbox](http://www.saliencytoolbox.net/). Due
+        The model makes use of the [SaliencyToolbox](   ). Due
         to licence restrictions the Toolbox cannot be downloaded automatically. You have to
         download it yourself and provide the location of the zipfile via the
         `saliency_toolbox_archive`-keyword to the constructor.
@@ -525,7 +525,6 @@ class IttiKoch(ExternalModelMixin, MatlabSaliencyMapModel):
     def _setup(self, saliency_toolbox_archive):
         if not saliency_toolbox_archive:
             raise Exception('You have to provide the zipfile containing the Itti and Koch Saliency Toolbox!')
-
         print('Extracting Saliency Toolbox')
         extract_zipfile(saliency_toolbox_archive, self.location)
         apply_quilt(os.path.join(self.location, 'SaliencyToolbox'),

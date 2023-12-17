@@ -149,3 +149,4 @@ datasets/
 *.tar.gz
 pretrained_weights/deepgaze/
 models/
+paper/

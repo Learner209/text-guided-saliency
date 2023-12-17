@@ -44,14 +44,13 @@ DATASET_MAPPINGS = {
     "figrim": get_FIGRIM,
     "salicon_eval": get_SALICON,
     "toronto": get_toronto,
-    "DUT_OMRON": get_DUT_OMRON,
+    # "DUT_OMRON": get_DUT_OMRON,
     "OSIE": get_OSIE,
     "PASCAL_S": get_PASCAL_S,
-    "NUSEF_public": get_NUSEF_public
 }
 
 import pandas as pd
-model_zoos = ["IttiKoch", "Judd", "AIM", "SUN", "CovSal"]
+model_zoos = ["IttiKoch", "AIM", "SUN", "CovSal"]
 columns = ['Model', 'Dataset', 'AUC_shuffled', 'AUC_uniform', 'KL_uniform', 'KL_shuffled', 'KL_identical_nonfixations', 'Image_based_KL_divergence']
 results_df = pd.DataFrame(columns=columns)
 
@@ -89,44 +88,44 @@ for model_name in model_zoos:
         short_stimuli = pysaliency.FileStimuli(filenames=mit_stimuli.filenames[:cutoff])
         short_fixations = mit_fixations[mit_fixations.n < cutoff]
 
-        try:
-            auc_uniform = model.AUC(short_stimuli, short_fixations, nonfixations='uniform', verbose=True)
-        except Exception as e:
-            auc_uniform = np.nan
-        try:
-            auc_shuffled = model.AUC(short_stimuli, short_fixations, nonfixations='shuffled', verbose=True)
-        except Exception as e:
-            auc_shuffled = np.nan
-        try:
-            auc_identical_nonfixations = model.AUC(short_stimuli, short_fixations, nonfixations=short_fixations, verbose=True)
-        except Exception as e:
-            auc_identical_nonfixations = np.nan
-        try:
-            kl_uniform = model.fixation_based_KL_divergence(short_stimuli, short_fixations, nonfixations='uniform')
-        except Exception as e:
-            kl_uniform = np.nan
+        # try:
+        auc_uniform = model.AUC(short_stimuli, short_fixations, nonfixations='uniform', verbose=True)
+        # except Exception as e:
+            # auc_uniform = np.nan
+        # try:
+        auc_shuffled = model.AUC(short_stimuli, short_fixations, nonfixations='shuffled', verbose=True)
+        # except Exception as e:
+            # auc_shuffled = np.nan
+        # try:
+        auc_identical_nonfixations = model.AUC(short_stimuli, short_fixations, nonfixations=short_fixations, verbose=True)
+        # except Exception as e:
+            # auc_identical_nonfixations = np.nan
+        # try:
+        kl_uniform = model.fixation_based_KL_divergence(short_stimuli, short_fixations, nonfixations='uniform')
+        # except Exception as e:
+            # kl_uniform = np.nan
 
-        try:
-            kl_identical = model.fixation_based_KL_divergence(short_stimuli, short_fixations, nonfixations=short_fixations)
-        except Exception as e:
-            kl_identical = np.nan
-        try:
-            nss = model.NSS(short_stimuli, short_fixations)
-        except Exception as e:
-            nss = np.nan
-        try:
-            gold_standard = pysaliency.FixationMap(short_stimuli, short_fixations, kernel_size=30)
-            image_based_kl = model.image_based_kl_divergence(short_stimuli, gold_standard)
-        except Exception as e:
-            image_based_kl = np.nan
-        try:
-            cc = model.CC(short_stimuli, gold_standard)
-        except Exception as e:
-            cc = np.nan
-        try:
-            ssim = model.SIM(short_stimuli, gold_standard)
-        except Exception as e:
-            ssim = np.nan
+        # try:
+        kl_identical = model.fixation_based_KL_divergence(short_stimuli, short_fixations, nonfixations=short_fixations)
+        # except Exception as e:
+            # kl_identical = np.nan
+        # try:
+        nss = model.NSS(short_stimuli, short_fixations)
+        # except Exception as e:
+            # nss = np.nan
+        # try:
+        gold_standard = pysaliency.FixationMap(short_stimuli, short_fixations, kernel_size=30)
+        image_based_kl = model.image_based_kl_divergence(short_stimuli, gold_standard)
+        # except Exception as e:
+            # image_based_kl = np.nan
+        # try:
+        cc = model.CC(short_stimuli, gold_standard)
+        # except Exception as e:
+            # cc = np.nan
+        # try:
+        ssim = model.SIM(short_stimuli, gold_standard)
+        # except Exception as e:
+            # ssim = np.nan
 
         result = {
             'Model': model_name,
@@ -142,3 +141,5 @@ for model_name in model_zoos:
             "ssim": ssim
         }
         results_df = pd.concat([results_df, pd.DataFrame([result])], ignore_index=True)
+        
+results_df.to_csv("results.csv")

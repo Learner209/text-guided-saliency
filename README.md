@@ -123,7 +123,7 @@ pip install -e .
 
 Additionally, if you want to reproduce the results about the gradient-based models in the paper(extensive experiments on Vanilla Gradient, SmoothGrad, Integrated gradients, GradCam... based on InceptionV3, CNN or MLP architectures), please refer to the sanity-check directory !🤗
 
-To follow the original implementation of these gradient-based models, we have to create a new conda envrionment to test it!
+To follow the original implementation of these gradient-based models, we have to create a new conda environment to test it!
 
 ```bash
 conda env create --file=tf_env.yaml
@@ -182,13 +182,9 @@ Now the directory tree should be the following:
     - src
 ```
 
-## ❖ Pretrained Models
+## ❖ Usage
 
-Please refer to the [`Re-IQA`](https://github.com/avinabsaha/ReIQA) repository to download the `content_aware_r50.pth` and the `quality_aware_r50.pth`, and put them under the directory `$ROOT/IQAx/IQAx/re-iqa_ckpts/`. Also please take a tour to the [`ImageReward`](https://github.com/THUDM/ImageReward) repo and download `ImageReward.pt` and `med_config.json` and put them under the `$ROOT/IQAx/ImageReward/pretrained_model`.
-
-## ❖ Finetuned models
-
-Our finetuned models can be obtained at [jbox](https://jbox.sjtu.edu.cn/l/y1VSE2), the readers can check the `demo*.py` for reference(load a `IQAtrainer` class and then run the inference function).
+We use the BLIP pretrained model as our back-bone, and finetune it on the SJTU-VIS dataset. Also please take a tour to the [`pysaliency`](https://github.com/matthias-k/pysaliency) repo for further details.
 
 ## ❖ Quick Run
 
@@ -225,7 +221,7 @@ Please see the `.ipynb` notebooks under the `sanity_check/notebooks/` directory 
 
 ## ❖ Acknowledgments
 
-I extend my heartfelt gratitude to the esteemed faculty and dedicated teaching assistants of CS3324 for their invaluable guidance and support throughout my journey in image process- ing. Their profound knowledge, coupled with an unwavering commitment to nurturing curiosity and innovation, has been instrumental in my academic and personal growth. I am deeply appreciative of their efforts in creating a stimulating and enriching learning environment, which has significantly contributed to the development of this paper and my under- standing of the field. My sincere thanks to each one of them for inspiring and challenging me to reach new heights in my studies.
+I extend my heartfelt gratitude to the esteemed faculty and dedicated teaching assistants of CS3324 for their invaluable guidance and support throughout my journey in image processing. Their profound knowledge, coupled with an unwavering commitment to nurturing curiosity and innovation, has been instrumental in my academic and personal growth. I am deeply appreciative of their efforts in creating a stimulating and enriching learning environment, which has significantly contributed to the development of this paper and my understanding of the field. My sincere thanks to each one of them for inspiring and challenging me to reach new heights in my studies.
 
 ### ✨Stars/forks/issues/PRs are all welcome!
 
